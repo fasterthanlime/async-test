@@ -1,0 +1,14 @@
+{
+  "name": "async-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "stacktrace.js",
+  "scripts": {
+    "start": "node --stack_trace_limit=100 index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "trace": "^3.0.0"
+  }
+}

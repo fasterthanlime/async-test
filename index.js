@@ -2,45 +2,43 @@
 
 require("./trace");
 
-function firstThing() {
+async function main () {
   console.log("=================================");
   console.log(" Throwing first thing");
   console.log("=================================");
 
-  const cherrypie = () => new Promise((resolve, reject) => {
-    reject(new Error(`throwing first thing`));
-  });
-  const binomial = () => cherrypie();
-  const abacus = () => binomial();
-  return checkStack(abacus());
-}
+  {  
+    const cherrypie = async () => {
+      throw new Error(`throwing first thing`);
+    };
+    const binomial = async () => await cherrypie();
+    const abacus = async () => await binomial();
+    await checkStack(abacus());
+  }
 
-function secondThing() {
   console.log("=================================");
   console.log(" Throwing after await");
   console.log("=================================");
 
-  const cherrypie = () =>
-    new Promise((resolve, reject) => setTimeout(resolve, 200))
-    .then(() => {
+  {
+    const cherrypie = async () => {
+      await new Promise((resolve, reject) => setTimeout(resolve, 200));
       throw new Error(`after timeout`);
-    })
-  const binomial = () => cherrypie();
-  const abacus = () => binomial();
-  return checkStack(abacus());
-}
-
-function main () {
-  firstThing().then(() => secondThing());
+    };
+    const binomial = async () => await cherrypie();
+    const abacus = async () => await binomial();
+    await checkStack(abacus());
+  }
 };
 
 main();
 
-function checkStack(promise) {
-  return promise.then(() => {
+async function checkStack(promise) {
+  try {
+    await promise;
     console.error("should have caught, bailing");
     process.exit(1);
-  }).catch((e) => {
+  } catch (e) {
     console.log(`Full stack trace:\n${e.stack}\n\n`);
 
     if (!/at abacus /.test(e.stack)) {
@@ -55,5 +53,5 @@ function checkStack(promise) {
       console.error("didn't see cherrypie, bailing");
       process.exit(1);
     }
-  });
+  }
 }
